@@ -59,6 +59,14 @@ dependencies {
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.15.0"
     implementation "com.google.accompanist:accompanist-placeholder:0.17.0"
 
+    // retrofit
+    api "com.squareup.retrofit2:retrofit:$retrofit_version"
+    api "com.google.code.gson:gson:$gson_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
