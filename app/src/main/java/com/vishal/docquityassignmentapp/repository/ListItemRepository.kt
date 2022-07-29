@@ -9,4 +9,8 @@ object ListItemRepository {
     suspend fun getPosts(): ApiResult<List<ListItemEntity>> {
         return apiCall { listItemService.getPosts() }
     }
+
+    suspend fun getPost(id: Int): ApiResult<ListItemEntity> {
+        return apiCall { listItemService.getPost(id) }
+    }
 }

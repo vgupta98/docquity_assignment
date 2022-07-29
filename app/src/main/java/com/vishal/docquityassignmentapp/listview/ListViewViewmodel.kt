@@ -15,6 +15,9 @@ class ListViewViewmodel private constructor(
     val listItemResponse = stateApiResult<List<ListItemEntity>>()
     private val emptyListItemResponse = ApiResult<List<ListItemEntity>>()
 
+    val singleListItemResponse by lazy { stateApiResult<ListItemEntity>() }
+    private val emptySingleListItemResponse by lazy { ApiResult<ListItemEntity>() }
+
     init {
         viewModelScope.launch {
             getPosts()
@@ -26,6 +29,13 @@ class ListViewViewmodel private constructor(
             listItemResponse.value = emptyListItemResponse
         }
         listItemResponse.value = listItemRepository.getPosts()
+    }
+
+    suspend fun getPost(id: Int, retry: Boolean = false) {
+        if (retry) {
+            singleListItemResponse.value = emptySingleListItemResponse
+        }
+        singleListItemResponse.value = listItemRepository.getPost(id)
     }
 
     class Factory(
