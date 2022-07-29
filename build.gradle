@@ -6,8 +6,11 @@ buildscript {
         okhttp_version = "3.14.9"
         retrofit_version =  "2.9.0"
         gson_version = "2.8.6"
+        coroutines_version = "1.6.0"
+        navigation_version = "2.4.1"
     }
     dependencies {
+        classpath "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutines_version"
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
