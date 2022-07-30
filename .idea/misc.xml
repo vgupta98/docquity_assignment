@@ -5,6 +5,7 @@
       <map>
         <entry key="app/src/main/res/drawable/bg_api_error.xml" value="0.1815" />
         <entry key="app/src/main/res/drawable/ic_down_arrow.xml" value="0.1815" />
+        <entry key="app/src/main/res/drawable/ic_search.xml" value="0.1815" />
         <entry key="app/src/main/res/drawable/ic_up_arrow.xml" value="0.1815" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.22871376811594202" />
       </map>

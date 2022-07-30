@@ -8,12 +8,16 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -42,7 +46,11 @@ fun ListViewUI(
         }
         ResultState.SUCCESS -> {
             viewModel.listItemResponse.value.result?.let {
-                ListViewUI(listItemResponse = it)
+                ListViewUI(
+                    searchValue = viewModel.searchId.value,
+                    onValueChange = viewModel.onSearchTextChanged,
+                    listItemResponse = it,
+                )
             } ?: run {
                 ErrorUI {
                     scope.launch { viewModel.getPosts(true) }
@@ -60,25 +68,37 @@ fun ListViewUI(
 @Composable
 private fun ListViewUI(
     modifier: Modifier = Modifier,
+    searchValue: String,
+    onValueChange: (String) -> Unit,
     listItemResponse: List<ListItemEntity>,
 ) {
-    LazyColumn(
-        modifier = modifier
-            .background(LightBlue)
+
+    Column(
+        modifier = modifier.background(LightBlue),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        items(
-            count = listItemResponse.size,
-            key = { index ->
-                listItemResponse[index].id
-            },
-        ) { index ->
-            listItemResponse[index].let {
-                Spacer(modifier = Modifier.size(3.dp))
-                ListViewItem(listItemEntity = it, modifier = Modifier.fillMaxWidth())
-                Spacer(modifier = Modifier.size(3.dp))
+        Spacer(modifier = Modifier.size(12.dp))
+        SearchBarUI(searchValue = searchValue, onValueChange = onValueChange)
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            items(
+                count = listItemResponse.size,
+                key = { index ->
+                    listItemResponse[index].id
+                },
+            ) { index ->
+                listItemResponse[index].let {
+                    Spacer(modifier = Modifier.size(3.dp))
+                    ListViewItem(listItemEntity = it, modifier = Modifier.fillMaxWidth())
+                    Spacer(modifier = Modifier.size(3.dp))
+                }
             }
         }
     }
+
+
 }
 
 @Composable
@@ -178,4 +198,33 @@ private fun ListViewItem(
             }
         }
     }
+}
+
+@Composable
+private fun SearchBarUI(
+    modifier: Modifier = Modifier,
+    searchValue: String,
+    onValueChange: (String) -> Unit,
+) {
+    OutlinedTextField(
+        modifier = modifier,
+        value = searchValue,
+        onValueChange = onValueChange,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            backgroundColor = White,
+            focusedBorderColor = LightBlue,
+            unfocusedBorderColor = Black,
+            cursorColor = Black,
+            textColor = Black,
+        ),
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_search),
+                contentDescription = null,
+                tint = Navy,
+                modifier = Modifier.size(24.dp),
+            )
+        }
+    )
 }

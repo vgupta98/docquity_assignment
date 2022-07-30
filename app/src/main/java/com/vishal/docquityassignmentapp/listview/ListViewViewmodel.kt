@@ -1,5 +1,6 @@
 package com.vishal.docquityassignmentapp.listview
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,12 +12,14 @@ import kotlinx.coroutines.launch
 
 class ListViewViewmodel private constructor(
     private val listItemRepository: ListItemRepository,
-): ViewModel() {
+) : ViewModel() {
     val listItemResponse = stateApiResult<List<ListItemEntity>>()
     private val emptyListItemResponse = ApiResult<List<ListItemEntity>>()
 
     val singleListItemResponse by lazy { stateApiResult<ListItemEntity>() }
     private val emptySingleListItemResponse by lazy { ApiResult<ListItemEntity>() }
+
+    val searchId by lazy { mutableStateOf("") }
 
     init {
         viewModelScope.launch {
@@ -36,6 +39,12 @@ class ListViewViewmodel private constructor(
             singleListItemResponse.value = emptySingleListItemResponse
         }
         singleListItemResponse.value = listItemRepository.getPost(id)
+    }
+
+    val onSearchTextChanged = fun(value: String) {
+        if (value.toIntOrNull() != null || value.isEmpty()) {
+            searchId.value = value
+        }
     }
 
     class Factory(
