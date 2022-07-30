@@ -47,6 +47,11 @@ class ListViewViewmodel private constructor(
         }
     }
 
+    suspend fun onSearchClick() {
+        if (searchId.value.toIntOrNull() != null)
+            getPost(searchId.value.toInt())
+    }
+
     class Factory(
         private val listItemRepository: ListItemRepository,
     ) : ViewModelProvider.NewInstanceFactory() {

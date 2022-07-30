@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -16,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,6 +37,7 @@ fun ListViewUI(
     viewModel: ListViewViewmodel,
 ) {
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
 
     when (viewModel.listItemResponse.value.state) {
         ResultState.PROGRESS -> {
@@ -49,6 +53,10 @@ fun ListViewUI(
                 ListViewUI(
                     searchValue = viewModel.searchId.value,
                     onValueChange = viewModel.onSearchTextChanged,
+                    onSearch = {
+                        focusManager.clearFocus()
+                        scope.launch { viewModel.onSearchClick() }
+                    },
                     listItemResponse = it,
                 )
             } ?: run {
@@ -63,6 +71,38 @@ fun ListViewUI(
             }
         }
     }
+
+    when (viewModel.singleListItemResponse.value.state) {
+        ResultState.PROGRESS -> Unit
+        ResultState.SUCCESS -> {
+            viewModel.singleListItemResponse.value.result?.let {
+                ListViewUI(
+                    searchValue = viewModel.searchId.value,
+                    onValueChange = viewModel.onSearchTextChanged,
+                    onSearch = {
+                        focusManager.clearFocus()
+                        scope.launch { viewModel.onSearchClick() }
+                    },
+                    listItemResponse = listOf(it),
+                )
+            } ?: run {
+                ErrorUI {
+                    scope.launch {
+                        viewModel.getPost(retry = true,
+                            id = viewModel.searchId.value.toInt())
+                    }
+                }
+            }
+        }
+        ResultState.FAILURE -> {
+            ErrorUI {
+                scope.launch {
+                    viewModel.getPost(retry = true,
+                        id = viewModel.searchId.value.toInt())
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -70,6 +110,7 @@ private fun ListViewUI(
     modifier: Modifier = Modifier,
     searchValue: String,
     onValueChange: (String) -> Unit,
+    onSearch: () -> Unit,
     listItemResponse: List<ListItemEntity>,
 ) {
 
@@ -78,7 +119,8 @@ private fun ListViewUI(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.size(12.dp))
-        SearchBarUI(searchValue = searchValue, onValueChange = onValueChange)
+        SearchBarUI(searchValue = searchValue, onValueChange = onValueChange, onSearch = onSearch)
+        Spacer(modifier = Modifier.size(6.dp))
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -205,12 +247,14 @@ private fun SearchBarUI(
     modifier: Modifier = Modifier,
     searchValue: String,
     onValueChange: (String) -> Unit,
+    onSearch: () -> Unit,
 ) {
     OutlinedTextField(
         modifier = modifier,
         value = searchValue,
         onValueChange = onValueChange,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Search),
         colors = TextFieldDefaults.outlinedTextFieldColors(
             backgroundColor = White,
             focusedBorderColor = LightBlue,
@@ -225,6 +269,9 @@ private fun SearchBarUI(
                 tint = Navy,
                 modifier = Modifier.size(24.dp),
             )
-        }
+        },
+        keyboardActions = KeyboardActions(
+            onSearch = { onSearch() },
+        )
     )
 }
